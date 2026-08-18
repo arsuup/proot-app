@@ -8,7 +8,7 @@
     "scheme": "prootapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      // c'est cool apple ça marche et tout
+      "icon": "./assets/proot.icon"
     },
     "android": {
       "adaptiveIcon": {
