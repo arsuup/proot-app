@@ -103,3 +103,10 @@ jobs:
           mkdir Payload
           cp -r "$APP_PATH" Payload/
           zip -r MonApp-unsigned.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-unsigned-ipa
+          path: app-release-unsigned.ipa
+          if-no-files-found: error
