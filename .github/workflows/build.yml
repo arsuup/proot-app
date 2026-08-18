@@ -61,8 +61,10 @@ jobs:
 
       - name: Build unsigned .app
         run: |
+          SCHEME=$(xcodebuild -workspace ios/*.xcworkspace -list | awk '/Schemes:/{getline; print; exit}' | xargs)
+          echo "Scheme détecté : $SCHEME"
           xcodebuild -workspace ios/*.xcworkspace \
-            -scheme MonApp \
+            -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
