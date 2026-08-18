@@ -64,45 +64,43 @@ jobs:
           set -eo pipefail
           cd ios
           
-          # Extract the real App Scheme directly from the .xcodeproj filename
+          # Extraction du nom du schéma depuis le projet
           XCODEPROJ=$(ls -d *.xcodeproj | head -n 1)
           SCHEME=$(basename "$XCODEPROJ" .xcodeproj)
-          echo "Building Scheme: $SCHEME"
+          echo "Schéma compilé : $SCHEME"
           
           xcodebuild -workspace *.xcworkspace \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath ../build \
+            -derivedDataPath "$GITHUB_WORKSPACE/build" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
             build
 
-      - name: Inspect build directory
-        if: failure()
-        run: |
-          echo "=== DerivedData Products Directory ==="
-          ls -R build/Build/Products/ || true
-          
       - name: Package into .ipa
         run: |
-          echo "=== Build Products Content ==="
-          ls -la build/Build/Products/Release-iphoneos/ || true
+          cd "$GITHUB_WORKSPACE"
           
           APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
           
           if [ -z "$APP_PATH" ]; then
-            echo "Error: No .app directory found in build/Build/Products/Release-iphoneos"
+            echo "Erreur: Aucun dossier .app trouvé dans build/Build/Products/Release-iphoneos"
             exit 1
           fi
           
-          echo "Found app at: $APP_PATH"
+          echo "Dossier .app trouvé : $APP_PATH"
+          
+          rm -rf Payload app-release-unsigned.ipa
           mkdir Payload
           cp -r "$APP_PATH" Payload/
-          zip -r MonApp-unsigned.ipa Payload
+          zip -r app-release-unsigned.ipa Payload
+          
+          echo "=== Vérification de l'IPA créé ==="
+          ls -lh app-release-unsigned.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
