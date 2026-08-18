@@ -61,19 +61,27 @@ jobs:
 
       - name: Build unsigned .app
         run: |
-          SCHEME=$(xcodebuild -workspace ios/*.xcworkspace -list | awk '/Schemes:/{getline; print; exit}' | xargs)
-          echo "Scheme détecté : $SCHEME"
-          xcodebuild -workspace ios/*.xcworkspace \
+          cd ios
+          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{getline; print; exit}' | xargs)
+          echo "Scheme detected: $SCHEME"
+          xcodebuild -workspace *.xcworkspace \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO
+            -derivedDataPath ../build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Package into .ipa
         run: |
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" -maxdepth 1 | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: No .app file found in build products!"
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
           mkdir Payload
-          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
+          cp -r "$APP_PATH" Payload/
           zip -r MonApp-unsigned.ipa Payload
 
       - uses: actions/upload-artifact@v4
