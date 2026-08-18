@@ -61,32 +61,37 @@ jobs:
 
       - name: Build unsigned .app
         run: |
-          set -o pipefail
+          set -eo pipefail
           cd ios
           
-          # Detect Scheme
-          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{getline; print; exit}' | xargs)
-          echo "Scheme detected: $SCHEME"
+          # Extract the real App Scheme directly from the .xcodeproj filename
+          XCODEPROJ=$(ls -d *.xcodeproj | head -n 1)
+          SCHEME=$(basename "$XCODEPROJ" .xcodeproj)
+          echo "Building Scheme: $SCHEME"
           
-          # Build .app bundle
           xcodebuild -workspace *.xcworkspace \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             -derivedDataPath ../build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE_SPECIFIER=""
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            build
 
       - name: Inspect build directory
         if: failure()
         run: |
           echo "=== DerivedData Products Directory ==="
           ls -R build/Build/Products/ || true
-
+          
       - name: Package into .ipa
         run: |
+          echo "=== Build Products Content ==="
+          ls -la build/Build/Products/Release-iphoneos/ || true
+          
           APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
           
           if [ -z "$APP_PATH" ]; then
