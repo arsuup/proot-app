@@ -6,8 +6,8 @@
     {
       "layers" : [
         {
-          "image-name" : "proot-symbol.svg",
-          "name" : "proot-symbol",
+          "image-name" : "Base.png",
+          "name" : "Base",
           "position" : {
             "scale" : 1
           }
