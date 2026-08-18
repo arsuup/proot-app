@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - uses: actions/setup-java@v4
         with:
@@ -22,6 +23,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Generate native android folder
+        run: npx expo prebuild --platform android --clean
 
       - name: Build APK
         run: |
@@ -42,9 +46,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
+
+      - name: Generate native ios folder
+        run: npx expo prebuild --platform ios --clean
 
       - name: Install pods
         run: |
@@ -53,7 +61,7 @@ jobs:
 
       - name: Build unsigned .app
         run: |
-          xcodebuild -workspace ios/MonApp.xcworkspace \
+          xcodebuild -workspace ios/*.xcworkspace \
             -scheme MonApp \
             -configuration Release \
             -sdk iphoneos \
