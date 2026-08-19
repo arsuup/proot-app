@@ -13,7 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants/theme';
+import { useAppData } from '../../lib/app-data';
 import { generateRootChatMessage } from '../../lib/root-ai';
 import { useTabSwipe } from '../../lib/use-tab-swipe';
 
@@ -38,7 +40,12 @@ type SavedRootConversations = {
 
 const ROOT_CONVERSATIONS_STORAGE_KEY = '@proot/root-conversations-v1';
 const NEW_CONVERSATION_TITLE = 'Nouvelle discussion';
-const rootNormal = require('../../../assets/images/root-cool.png');
+const MAX_CONVERSATION_MESSAGES = 10;
+const rootClassic = require('../../../assets/images/root-cool.png');
+const rootDripBasic = require('../../../assets/images/root-drip-basic.png');
+const rootDripFull = require('../../../assets/images/root-drip.png');
+const rootBlingBasic = require('../../../assets/images/root-bling-basic.png');
+const rootBlingFull = require('../../../assets/images/root-bling-full.png');
 const rootThinking = require('../../../assets/images/root-angry.png');
 
 const firstMessage: ChatMessage = {
@@ -61,12 +68,31 @@ const createConversation = (): RootConversation => {
 const sortConversations = (conversations: RootConversation[]) =>
   [...conversations].sort((first, second) => Date.parse(second.updatedAt) - Date.parse(first.updatedAt));
 
+const isChatMessage = (value: unknown): value is ChatMessage => {
+  if (!value || typeof value !== 'object') return false;
+  const message = value as Partial<ChatMessage>;
+  return typeof message.id === 'string'
+    && (message.from === 'root' || message.from === 'user')
+    && typeof message.text === 'string';
+};
+
 const formatConversationDate = (date: string) => new Intl.DateTimeFormat('fr-BE', {
   day: '2-digit',
   month: 'short',
 }).format(new Date(date));
 
 export default function RootChat() {
+  const insets = useSafeAreaInsets();
+  const { equippedRootSkin, recordMissionActivity } = useAppData();
+  const rootNormal = equippedRootSkin === 'bling-full'
+    ? rootBlingFull
+    : equippedRootSkin === 'bling-basic'
+      ? rootBlingBasic
+      : equippedRootSkin === 'drip-full'
+        ? rootDripFull
+        : equippedRootSkin === 'drip-basic'
+          ? rootDripBasic
+          : rootClassic;
   const tabSwipe = useTabSwipe(1);
   const [conversations, setConversations] = useState<RootConversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -90,6 +116,11 @@ export default function RootChat() {
             typeof conversation.id === 'string' &&
             Array.isArray(conversation.messages) &&
             typeof conversation.updatedAt === 'string')
+            .map((conversation) => ({
+              ...conversation,
+              messages: conversation.messages.filter(isChatMessage).slice(-MAX_CONVERSATION_MESSAGES),
+            }))
+            .filter((conversation) => conversation.messages.length > 0)
           : [];
         const nextConversations = storedConversations.length ? sortConversations(storedConversations) : [createConversation()];
         const savedActiveId = saved?.activeConversationId;
@@ -131,6 +162,10 @@ export default function RootChat() {
   );
   const isThinking = thinkingConversationId !== null;
   const isActiveConversationThinking = thinkingConversationId === activeConversation?.id;
+  const latestRootMessageIndex = activeConversation?.messages.reduce(
+    (latestIndex, message, index) => message.from === 'root' ? index : latestIndex,
+    -1,
+  ) ?? -1;
 
   useEffect(() => {
     const timeout = setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
@@ -146,7 +181,7 @@ export default function RootChat() {
   const appendMessage = (conversationId: string, message: ChatMessage) => {
     updateConversation(conversationId, (conversation) => ({
       ...conversation,
-      messages: [...conversation.messages, message],
+      messages: [...conversation.messages, message].slice(-MAX_CONVERSATION_MESSAGES),
       title: message.from === 'user' && conversation.title === NEW_CONVERSATION_TITLE
         ? message.text.slice(0, 30) + (message.text.length > 30 ? '…' : '')
         : conversation.title,
@@ -168,6 +203,16 @@ export default function RootChat() {
     setIsConversationPickerVisible(false);
   };
 
+  const deleteConversation = (conversationId: string) => {
+    setThinkingConversationId((current) => current === conversationId ? null : current);
+    setConversations((current) => {
+      const remainingConversations = current.filter((conversation) => conversation.id !== conversationId);
+      const nextConversations = remainingConversations.length ? remainingConversations : [createConversation()];
+      if (activeConversationId === conversationId) setActiveConversationId(nextConversations[0].id);
+      return nextConversations;
+    });
+  };
+
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || isThinking || !activeConversation) return;
@@ -175,6 +220,7 @@ export default function RootChat() {
     const conversationId = activeConversation.id;
     const conversationHistory = activeConversation.messages;
     appendMessage(conversationId, { id: `user-${Date.now()}`, from: 'user', text });
+    recordMissionActivity('chat');
     setInput('');
     setThinkingConversationId(conversationId);
 
@@ -198,7 +244,7 @@ export default function RootChat() {
   return (
     <KeyboardAvoidingView style={styles.keyboardContainer} behavior={Platform.select({ ios: 'padding', android: undefined })}>
       <View style={styles.container} {...tabSwipe.panHandlers}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
           <Image source={rootNormal} style={styles.headerRoot} resizeMode="contain" />
           <View style={styles.headerCopy}>
             <Text style={styles.headerTitle}>√ ROOT</Text>
@@ -210,9 +256,11 @@ export default function RootChat() {
         </View>
 
         <ScrollView ref={scrollViewRef} contentContainerStyle={styles.messages} keyboardShouldPersistTaps="handled">
-          {activeConversation.messages.map((message) => (
+          {activeConversation.messages.map((message, index) => (
             <View key={message.id} style={[styles.messageRow, message.from === 'user' && styles.userMessageRow]}>
-              {message.from === 'root' ? <Image source={rootNormal} style={styles.messageRoot} resizeMode="contain" /> : null}
+              {message.from === 'root' && index === latestRootMessageIndex
+                ? <Image source={rootNormal} style={styles.messageRoot} resizeMode="contain" />
+                : message.from === 'root' ? <View style={styles.messageRootPlaceholder} /> : null}
               <View style={[styles.bubble, message.from === 'user' ? styles.userBubble : styles.rootBubble]}>
                 <Text style={[styles.messageText, message.from === 'user' && styles.userMessageText]}>{message.text}</Text>
               </View>
@@ -260,19 +308,22 @@ export default function RootChat() {
               </TouchableOpacity>
               <ScrollView contentContainerStyle={styles.conversationList} showsVerticalScrollIndicator={false}>
                 {conversations.map((conversation) => (
-                  <TouchableOpacity
+                  <View
                     key={conversation.id}
                     style={[styles.conversationRow, conversation.id === activeConversation.id && styles.activeConversationRow]}
-                    onPress={() => selectConversation(conversation.id)}
-                    activeOpacity={0.78}
                   >
-                    <Image source={rootNormal} style={styles.conversationRoot} resizeMode="contain" />
-                    <View style={styles.conversationCopy}>
-                      <Text numberOfLines={1} style={styles.conversationTitle}>{conversation.title}</Text>
-                      <Text numberOfLines={1} style={styles.conversationPreview}>{conversation.messages.at(-1)?.text ?? 'Root attend.'}</Text>
-                    </View>
-                    <Text style={styles.conversationDate}>{formatConversationDate(conversation.updatedAt)}</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity style={styles.conversationSelect} onPress={() => selectConversation(conversation.id)} activeOpacity={0.78}>
+                      <Image source={rootNormal} style={styles.conversationRoot} resizeMode="contain" />
+                      <View style={styles.conversationCopy}>
+                        <Text numberOfLines={1} style={styles.conversationTitle}>{conversation.title}</Text>
+                        <Text numberOfLines={1} style={styles.conversationPreview}>{conversation.messages.at(-1)?.text ?? 'Root attend.'}</Text>
+                      </View>
+                      <Text style={styles.conversationDate}>{formatConversationDate(conversation.updatedAt)}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteConversationButton} onPress={() => deleteConversation(conversation.id)} accessibilityLabel="Supprimer cette discussion">
+                      <Text style={styles.deleteConversationText}>×</Text>
+                    </TouchableOpacity>
+                  </View>
                 ))}
               </ScrollView>
             </View>
@@ -287,7 +338,7 @@ const styles = StyleSheet.create({
   keyboardContainer: { flex: 1 },
   container: { backgroundColor: colors.background, flex: 1 },
   loadingScreen: { alignItems: 'center', backgroundColor: colors.background, flex: 1, justifyContent: 'center' },
-  header: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#ECE7DD', borderBottomWidth: 1, flexDirection: 'row', gap: 10, paddingBottom: 14, paddingHorizontal: 18, paddingTop: 18 },
+  header: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#ECE7DD', borderBottomWidth: 1, flexDirection: 'row', gap: 10, paddingBottom: 14, paddingHorizontal: 18 },
   headerRoot: { height: 48, width: 48 },
   headerCopy: { flex: 1, minWidth: 0 },
   headerTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
@@ -298,6 +349,7 @@ const styles = StyleSheet.create({
   messageRow: { alignItems: 'flex-end', flexDirection: 'row', flexShrink: 1, gap: 7, maxWidth: '87%' },
   userMessageRow: { alignSelf: 'flex-end', justifyContent: 'flex-end' },
   messageRoot: { height: 31, width: 31 },
+  messageRootPlaceholder: { height: 31, width: 31 },
   bubble: { borderRadius: 20, flexShrink: 1, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: colors.border },
   rootBubble: { backgroundColor: colors.surface, borderBottomLeftRadius: 0 },
   userBubble: { backgroundColor: '#292722', borderBottomRightRadius: 0 },
@@ -324,11 +376,14 @@ const styles = StyleSheet.create({
   newConversationButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, marginTop: 17, paddingVertical: 12, borderWidth: 1, borderColor: colors.border },
   newConversationText: { color: colors.text, fontSize: 13, fontWeight: '900' },
   conversationList: { gap: 8, paddingTop: 13 },
-  conversationRow: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#E6E1D7', borderRadius: 14, borderWidth: 1, flexDirection: 'row', gap: 9, padding: 10 },
+  conversationRow: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#E6E1D7', borderRadius: 14, borderWidth: 1, flexDirection: 'row', gap: 4, padding: 7 },
   activeConversationRow: { backgroundColor: '#FFF3C4', borderColor: '#E7C84D' },
+  conversationSelect: { alignItems: 'center', flex: 1, flexDirection: 'row', gap: 9, minWidth: 0, padding: 3 },
   conversationRoot: { height: 34, width: 34 },
   conversationCopy: { flex: 1, minWidth: 0 },
   conversationTitle: { color: colors.text, fontSize: 13, fontWeight: '900' },
   conversationPreview: { color: colors.textSecondary, fontSize: 11, marginTop: 3 },
   conversationDate: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
+  deleteConversationButton: { alignItems: 'center', backgroundColor: '#F4E4E1', borderRadius: 14, height: 29, justifyContent: 'center', width: 29 },
+  deleteConversationText: { color: colors.danger, fontSize: 20, fontWeight: '500', lineHeight: 22 },
 });

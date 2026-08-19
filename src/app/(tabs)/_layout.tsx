@@ -42,19 +42,32 @@ function GrootTabIcon({ color }: { color: ColorValue }) {
   );
 }
 
+function ShopTabIcon({ color }: { color: ColorValue }) {
+  return (
+    <View style={[styles.shopIcon, { opacity: color === colors.primaryDark ? 1 : 0.52 }]}>
+      <View style={[styles.shopHandle, { borderColor: color }]} />
+      <View style={[styles.shopBag, { borderColor: color }]}>
+        <View style={[styles.shopSparkle, styles.shopSparkleOne, { backgroundColor: color }]} />
+        <View style={[styles.shopSparkle, styles.shopSparkleTwo, { backgroundColor: color }]} />
+      </View>
+    </View>
+  );
+}
+
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
+        animation: 'shift',
         headerShown: false,
         tabBarActiveTintColor: colors.primaryDark,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: [
           styles.tabBar,
           {
-            height: 75 + insets.bottom,
+            height: 65 + insets.bottom,
             paddingBottom: insets.bottom,
           },
         ],
@@ -80,6 +93,13 @@ export default function TabLayout() {
         options={{
           title: 'Groot',
           tabBarIcon: ({ color }) => <GrootTabIcon color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: 'Boutique',
+          tabBarIcon: ({ color }) => <ShopTabIcon color={color} />,
         }}
       />
     </Tabs>
@@ -121,4 +141,10 @@ const styles = StyleSheet.create({
   grootEyes: { flexDirection: 'row', gap: 4, marginTop: 1 },
   grootEye: { backgroundColor: '#2C1C13', borderRadius: 2, height: 4, width: 3 },
   grootMouth: { backgroundColor: '#2C1C13', borderRadius: 2, height: 2, marginTop: 3, width: 5 },
+  shopIcon: { alignItems: 'center', height: 24, position: 'relative', width: 26 },
+  shopHandle: { borderRadius: 6, borderWidth: 2, height: 9, position: 'absolute', top: 1, width: 12 },
+  shopBag: { alignItems: 'center', borderRadius: 4, borderWidth: 2, height: 15, justifyContent: 'center', position: 'absolute', top: 7, width: 21 },
+  shopSparkle: { borderRadius: 2, height: 3, position: 'absolute', transform: [{ rotate: '45deg' }], width: 3 },
+  shopSparkleOne: { left: 6, top: 4 },
+  shopSparkleTwo: { right: 5, top: 7 },
 });

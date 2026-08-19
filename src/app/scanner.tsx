@@ -83,7 +83,7 @@ const barWidth = (value: number | undefined, maximum: number): `${number}%` =>
   `${Math.round(Math.min(Math.max(value ?? 0, 0) / maximum, 1) * 100)}%`;
 
 export default function BarcodeScanner() {
-  const { addScan } = useAppData();
+  const { addScan, recordMissionActivity, recordMissionScan } = useAppData();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -122,6 +122,7 @@ export default function BarcodeScanner() {
       nutritionGrade: scannedProduct.nutritionGrade,
       nutriments: scannedProduct.nutriments,
     });
+    recordMissionScan(scannedProduct.barcode, scannedProduct.productname);
   };
 
   const handleScan = async ({ data }: BarcodeScanEvent) => {
@@ -254,6 +255,7 @@ export default function BarcodeScanner() {
     setMathError(null);
     setIsNutritionUnlocked(true);
     setShowNutritionDetails(true);
+    recordMissionActivity('nutrition');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
@@ -266,6 +268,7 @@ export default function BarcodeScanner() {
       setRootGameStatus('idle');
       setIsNutritionUnlocked(true);
       setShowNutritionDetails(true);
+      recordMissionActivity('nutrition');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       return;
     }
@@ -654,7 +657,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 54,
   },
-  backArrow: { color: '#FFFFFF', fontSize: 28, fontWeight: '400', lineHeight: 20, marginRight: 3, position: 'relative', top: -3 },
+  backArrow: { color: '#FFFFFF', fontSize: 28, fontWeight: '400', lineHeight: 20, marginRight: 3 },
   backButtonText: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' },
   overlayRow: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
   overlayCenterRow: { flexDirection: 'row', height: SCAN_AREA_SIZE },
@@ -778,15 +781,15 @@ const styles = StyleSheet.create({
   aiIssueBox: { alignItems: 'center', marginTop: 8 },
   aiRetryButton: { borderColor: '#CFC9BE', borderRadius: 8, borderWidth: 1, marginTop: 7, paddingHorizontal: 10, paddingVertical: 6 },
   aiRetryText: { color: colors.textSecondary, fontSize: 10, fontWeight: '900' },
-  mathChallengeCard: { alignSelf: 'stretch', backgroundColor: '#E8F4FF', borderColor: '#8BB6DF', borderRadius: 16, borderWidth: 1, marginTop: 12, padding: 14 },
+  mathChallengeCard: { alignSelf: 'stretch', backgroundColor: '#E8F4FF', borderColor: '#8BB6DF', borderRadius: 16, borderWidth: 1, marginTop: 12, padding: 12 },
   hardMathChallengeCard: { backgroundColor: '#F2E7FF', borderColor: '#B996DD' },
   mathKicker: { color: '#356B9B', fontSize: 9, fontWeight: '900', letterSpacing: 0.8, textAlign: 'center' },
   mathInstruction: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, marginTop: 5, textAlign: 'center' },
   mathQuestion: { color: colors.text, fontSize: 22, fontWeight: '900', marginVertical: 12, textAlign: 'center' },
-  mathAnswerRow: { flexDirection: 'row', gap: 8 },
-  mathInput: { backgroundColor: '#FFFFFF', borderColor: '#C9D9E7', borderRadius: 10, borderWidth: 1, color: colors.text, flex: 1, fontSize: 16, fontWeight: '800', minHeight: 44, paddingHorizontal: 12 },
-  mathValidateButton: { alignItems: 'center', backgroundColor: '#356B9B', borderRadius: 10, justifyContent: 'center', minWidth: 82, paddingHorizontal: 10 },
-  mathValidateText: { color: '#FFFFFF', fontSize: 12, fontWeight: '900' },
+  mathAnswerRow: { alignItems: 'stretch', flexDirection: 'row', gap: 8, minWidth: 0 },
+  mathInput: { backgroundColor: '#FFFFFF', borderColor: '#C9D9E7', borderRadius: 10, borderWidth: 1, color: colors.text, flex: 1, fontSize: 16, fontWeight: '800', minHeight: 44, minWidth: 0, paddingHorizontal: 10 },
+  mathValidateButton: { alignItems: 'center', backgroundColor: '#356B9B', borderRadius: 10, flexBasis: 76, flexGrow: 0, flexShrink: 0, justifyContent: 'center', minHeight: 44, paddingHorizontal: 7 },
+  mathValidateText: { color: '#FFFFFF', fontSize: 11, fontWeight: '900', textAlign: 'center' },
   mathError: { color: '#A23D3D', fontSize: 11, fontWeight: '700', marginTop: 8, textAlign: 'center' },
   rootGameCard: {
     alignSelf: 'stretch',
