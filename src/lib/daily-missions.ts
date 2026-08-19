@@ -11,7 +11,7 @@ type DailyMissionResponse = {
   title?: unknown;
 };
 
-export const DAILY_MISSION_URL = 'https://proot.arsuup.fr/api/dailymission';
+export const DAILY_MISSION_URL = 'https://proot.arsuup.fr/api/daily';
 
 export const fallbackDailyTasks: DailyTask[] = [
   { id: 'fallback-scan', title: 'Scanner un suspect', content: 'Trouve un produit qui ferait sourire Root et scanne son code-barres.', reward: 10 },

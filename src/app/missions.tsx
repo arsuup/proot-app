@@ -69,7 +69,7 @@ export default function MissionsScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.nav}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}><Text style={styles.backText}>‹</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/')}><Text style={styles.backText}>‹</Text></TouchableOpacity>
         <View style={styles.navCopy}><Text style={styles.navTitle}>MISSIONS ROOT</Text><Text style={styles.navSubtitle}>Du jour</Text></View>
         <View style={styles.gemCounter}><Text style={styles.gemIcon}>◆</Text><Text style={styles.gemCount}>{progress.gems}</Text></View>
       </View>
@@ -100,9 +100,42 @@ export default function MissionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: colors.background, flex: 1 }, loading: { alignItems: 'center', backgroundColor: colors.background, flex: 1, justifyContent: 'center' },
-  nav: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#E8E3D9', borderBottomWidth: 1, flexDirection: 'row', gap: 11, paddingBottom: 14, paddingHorizontal: 18, paddingTop: 50 }, backButton: { alignItems: 'center', backgroundColor: colors.button, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 }, backText: { color: colors.text, fontSize: 30, fontWeight: '400', lineHeight: 23, marginTop: -3 }, navCopy: { flex: 1 }, navTitle: { color: colors.text, fontSize: 14, fontWeight: '900', letterSpacing: 0.7 }, navSubtitle: { color: colors.textSecondary, fontSize: 11, fontWeight: '700', marginTop: 2 }, gemCounter: { alignItems: 'center', backgroundColor: '#24211E', borderRadius: 16, flexDirection: 'row', gap: 5, paddingHorizontal: 10, paddingVertical: 8 }, gemIcon: { color: '#7BE3F4', fontSize: 13 }, gemCount: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' },
-  content: { padding: 18, paddingBottom: 42 }, hero: { backgroundColor: '#23211E', borderRadius: 20, overflow: 'hidden', padding: 18 }, heroTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, heroKicker: { color: colors.primary, fontSize: 9, fontWeight: '900', letterSpacing: 1 }, progressText: { color: '#FFFFFF', fontSize: 15, fontWeight: '900' }, heroTitle: { color: '#FFFFFF', fontSize: 23, fontWeight: '900', letterSpacing: -0.5, marginTop: 12 }, heroText: { color: '#D8D4CC', fontSize: 12, lineHeight: 17, marginTop: 5 }, countdownRow: { alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.09)', borderRadius: 11, flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, paddingHorizontal: 11, paddingVertical: 10 }, countdownLabel: { color: '#D8D4CC', fontSize: 10, fontWeight: '700' }, countdown: { color: colors.primary, fontSize: 15, fontWeight: '900' },
-  sectionTitle: { color: colors.text, fontSize: 12, fontWeight: '900', letterSpacing: 0.8, marginBottom: 10, marginTop: 26 }, taskCard: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#E7E1D7', borderRadius: 17, borderWidth: 1, flexDirection: 'row', gap: 10, marginTop: 9, minHeight: 118, padding: 12 }, completedTaskCard: { backgroundColor: '#EAF6E7', borderColor: '#9ACB93' }, taskNumber: { alignItems: 'center', backgroundColor: '#F1EEE7', borderRadius: 14, height: 42, justifyContent: 'center', marginTop: -35, width: 42 }, taskNumberText: { color: colors.textSecondary, fontSize: 12, fontWeight: '900' }, taskCopy: { flex: 1, minWidth: 0 }, taskTitle: { color: colors.text, fontSize: 14, fontWeight: '900' }, taskContent: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, marginTop: 4 }, taskFooter: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }, rewardPill: { alignItems: 'center', backgroundColor: '#E8F7FB', borderRadius: 8, flexDirection: 'row', gap: 4, paddingHorizontal: 7, paddingVertical: 4 }, rewardGem: { color: '#319CB0', fontSize: 9 }, rewardText: { color: '#247585', fontSize: 9, fontWeight: '900' }, completedText: { color: '#397D37', fontSize: 9, fontWeight: '900' }, completeButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 10, justifyContent: 'center', minHeight: 50, paddingHorizontal: 9, width: 68 }, completeButtonText: { color: colors.text, fontSize: 10, fontWeight: '900', textAlign: 'center' },
-  note: { backgroundColor: '#FFF3C4', borderRadius: 14, marginTop: 24, padding: 13 }, noteTitle: { color: '#705D00', fontSize: 9, fontWeight: '900', letterSpacing: 0.6 }, noteText: { color: '#6B5E28', fontSize: 11, lineHeight: 16, marginTop: 4 },
+  screen: { backgroundColor: colors.background, flex: 1 }, 
+  loading: { alignItems: 'center', backgroundColor: colors.background, flex: 1, justifyContent: 'center' },
+  nav: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#E8E3D9', borderBottomWidth: 1, flexDirection: 'row', gap: 11, paddingBottom: 14, paddingHorizontal: 18, paddingTop: 50 }, 
+  backButton: { alignItems: 'center', backgroundColor: colors.button, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 }, 
+  backText: { color: colors.text, fontSize: 36, fontWeight: '400', lineHeight: 23, marginTop: -3, position: 'relative', top: -4 }, 
+  navCopy: { flex: 1 }, navTitle: { color: colors.text, fontSize: 14, fontWeight: '900', letterSpacing: 0.7 }, 
+  navSubtitle: { color: colors.textSecondary, fontSize: 11, fontWeight: '700', marginTop: 2 }, 
+  gemCounter: { alignItems: 'center', backgroundColor: '#24211E', borderRadius: 16, flexDirection: 'row', gap: 5, paddingHorizontal: 10, paddingVertical: 8 }, 
+  gemIcon: { color: '#7BE3F4', fontSize: 13 }, 
+  gemCount: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' },
+  content: { padding: 18, paddingBottom: 42 }, 
+  hero: { backgroundColor: '#23211E', borderRadius: 20, overflow: 'hidden', padding: 18 }, 
+  heroTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, 
+  heroKicker: { color: colors.primary, fontSize: 12, fontWeight: '900', letterSpacing: 1 }, 
+  progressText: { color: '#FFFFFF', fontSize: 15, fontWeight: '900' }, 
+  heroTitle: { color: '#FFFFFF', fontSize: 23, fontWeight: '900', letterSpacing: -0.5, marginTop: 12 }, 
+  heroText: { color: '#D8D4CC', fontSize: 12, lineHeight: 17, marginTop: 5 }, 
+  countdownRow: { alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.09)', borderRadius: 11, flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, paddingHorizontal: 11, paddingVertical: 10 }, 
+  countdownLabel: { color: '#D8D4CC', fontSize: 10, fontWeight: '700' }, 
+  countdown: { color: colors.primary, fontSize: 15, fontWeight: '900' },
+  sectionTitle: { color: colors.text, fontSize: 12, fontWeight: '900', letterSpacing: 0.8, marginBottom: 10, marginTop: 26 }, 
+  taskCard: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#E7E1D7', borderRadius: 17, borderWidth: 1, flexDirection: 'row', gap: 10, marginTop: 9, minHeight: 118, padding: 12 }, 
+  completedTaskCard: { backgroundColor: '#EAF6E7', borderColor: '#9ACB93' }, 
+  taskNumber: { alignItems: 'center', backgroundColor: '#F1EEE7', borderRadius: 14, height: 42, justifyContent: 'center', marginTop: -35, width: 42 }, 
+  taskNumberText: { color: colors.textSecondary, fontSize: 12, fontWeight: '900' }, 
+  taskCopy: { flex: 1, minWidth: 0 }, 
+  taskTitle: { color: colors.text, fontSize: 14, fontWeight: '900' }, 
+  taskContent: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, marginTop: 4 }, 
+  taskFooter: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }, 
+  rewardPill: { alignItems: 'center', backgroundColor: '#E8F7FB', borderRadius: 8, flexDirection: 'row', gap: 4, paddingHorizontal: 7, paddingVertical: 4 }, 
+  rewardGem: { color: '#319CB0', fontSize: 9 }, 
+  rewardText: { color: '#247585', fontSize: 9, fontWeight: '900' }, 
+  completedText: { color: '#397D37', fontSize: 9, fontWeight: '900' }, 
+  completeButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 10, justifyContent: 'center', minHeight: 50, paddingHorizontal: 9, width: 68 }, 
+  completeButtonText: { color: colors.text, fontSize: 10, fontWeight: '900', textAlign: 'center' },
+  note: { backgroundColor: '#FFF3C4', borderRadius: 14, marginTop: 24, padding: 13 }, 
+  noteTitle: { color: '#705D00', fontSize: 9, fontWeight: '900', letterSpacing: 0.6 }, 
+  noteText: { color: '#6B5E28', fontSize: 11, lineHeight: 16, marginTop: 4 },
 });

@@ -19,7 +19,7 @@ const formatEnergy = (value?: number) => value === undefined ? '—' : `${Math.r
 
 function HistoryReport({ scan, onClose }: { scan: ScanHistoryItem; onClose: () => void }) {
   const grade = scan.nutritionGrade?.toUpperCase();
-  const gradeColor = grade ? nutritionGradeColors[grade] ?? colors.textMuted : colors.textMuted;
+  const gradeColor = grade ? nutritionGradeColors[grade] ?? colors.overlay : colors.overlay;
   const nutrients = scan.nutriments;
 
   return (
@@ -48,7 +48,7 @@ function HistoryReport({ scan, onClose }: { scan: ScanHistoryItem; onClose: () =
               <Text style={styles.rootScoreLabel}>LE VERDICT DE ROOT</Text>
               <Text style={[styles.rootScoreTitle, { color: scan.verdictColor }]}>{scan.verdictTitle}</Text>
             </View>
-            <View style={[styles.reportScore, { borderColor: scan.verdictColor }]}><Text style={[styles.reportScoreNumber, { color: scan.verdictColor }]}>{scan.rootScore}</Text><Text style={styles.reportScoreCaption}>ROOT</Text></View>
+            <View style={[styles.reportScore, { borderColor: scan.verdictColor }]}><Text style={[styles.reportScoreNumber, { color: scan.verdictColor }]}>{scan.rootScore}</Text><Text style={[styles.reportScoreCaption, { color: scan.verdictColor }]}>ROOT</Text></View>
           </View>
 
           <Text style={styles.realDataTitle}>LES VRAIES VALEURS</Text>
@@ -68,7 +68,6 @@ function HistoryReport({ scan, onClose }: { scan: ScanHistoryItem; onClose: () =
                 <View style={styles.nutritionCell}><Text style={styles.nutritionNumber}>{formatAmount(nutrients.fiber_100g)}</Text><Text style={styles.nutritionLabel}>Fibres</Text></View>
               </View>
               <View style={styles.additivesRow}><Text style={styles.additivesLabel}>Additifs déclarés</Text><Text style={styles.additivesValue}>{nutrients.additives_n ?? '—'}</Text></View>
-              <View style={styles.sourceNote}><Text style={styles.sourceNoteTitle}>SOURCE</Text><Text style={styles.sourceNoteText}>Données issues d'Open Food Facts et conservées lors du scan. Root ne change pas ces chiffres.</Text></View>
             </View>
           ) : (
             <View style={styles.missingData}><Text style={styles.missingDataTitle}>Rapport non disponible pour ce vieux scan.</Text><Text style={styles.missingDataText}>Les nouveaux scans sauvegardent toutes les valeurs réelles. Rescannne ce produit une fois pour mettre sa fiche à jour.</Text></View>
@@ -85,7 +84,7 @@ export default function GrootScreen() {
   const [selectedScan, setSelectedScan] = useState<ScanHistoryItem | null>(null);
 
   const confirmClearHistory = () => {
-    Alert.alert('Effacer l’historique ?', 'Les scans enregistrés sur cet appareil seront supprimés.', [
+    Alert.alert('Effacer l\'historique ?', 'Les scans enregistrés sur cet appareil seront supprimés.', [
       { text: 'Annuler', style: 'cancel' },
       { text: 'Effacer', style: 'destructive', onPress: () => void clearHistory() },
     ]);
@@ -128,12 +127,6 @@ const styles = StyleSheet.create({
   headerCopy: { flex: 1 },
   title: { color: colors.text, fontSize: 34, fontWeight: '900', letterSpacing: -1 },
   subtitle: { color: colors.textSecondary, fontSize: 14, fontWeight: '700', marginTop: -2 },
-  logoutButton: { backgroundColor: colors.button, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 },
-  logoutText: { color: colors.textSecondary, fontSize: 11, fontWeight: '900' },
-  profileRow: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#ECE7DD', borderRadius: 18, borderWidth: 1, flexDirection: 'row', gap: 10, marginTop: 20, padding: 11 },
-  profileImage: { backgroundColor: '#F2F0EB', borderRadius: 20, height: 40, width: 40 },
-  profileName: { color: colors.text, fontSize: 14, fontWeight: '900' },
-  profileCaption: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   historyHeading: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, marginTop: 24 },
   historyTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
   clearText: { color: colors.danger, fontSize: 13, fontWeight: '800' },
@@ -142,7 +135,7 @@ const styles = StyleSheet.create({
   emptyTitle: { color: colors.text, fontSize: 19, fontWeight: '900', marginTop: 12, textAlign: 'center' },
   emptyText: { color: colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 8, textAlign: 'center' },
   list: { gap: 11, paddingBottom: 26 },
-  scanCard: { alignItems: 'center', backgroundColor: colors.surface, borderColor: '#ECE7DD', borderRadius: 18, borderWidth: 1, flexDirection: 'row', gap: 11, padding: 10 },
+  scanCard: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 18, flexDirection: 'row', gap: 11, padding: 10, borderWidth: 1, borderColor: colors.border },
   productImageFrame: { alignItems: 'center', backgroundColor: '#F5F4F0', borderRadius: 12, height: 62, justifyContent: 'center', overflow: 'hidden', width: 55 },
   productImage: { height: 56, width: 49 },
   noImage: { color: colors.textMuted, fontSize: 25, fontWeight: '900' },
@@ -150,53 +143,50 @@ const styles = StyleSheet.create({
   productName: { color: colors.text, fontSize: 14, fontWeight: '900', lineHeight: 18 },
   brand: { color: colors.textSecondary, fontSize: 12, marginTop: 2 },
   date: { color: colors.textMuted, fontSize: 10, marginTop: 5 },
-  score: { alignItems: 'center', borderRadius: 18, borderWidth: 2, justifyContent: 'center', minHeight: 49, minWidth: 49, paddingHorizontal: 3 },
+  score: { alignItems: 'center', borderRadius: 10, borderWidth: 2, justifyContent: 'center', minHeight: 49, minWidth: 49, paddingHorizontal: 3 },
   scoreNumber: { fontSize: 17, fontWeight: '900', lineHeight: 19 },
   scoreLabel: { color: colors.textMuted, fontSize: 7, fontWeight: '900' },
   reportScreen: { backgroundColor: colors.background, flex: 1 },
-  reportNav: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#E8E3D9', borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 14, paddingHorizontal: 18, paddingTop: 50 },
-  closeButton: { alignItems: 'center', backgroundColor: colors.button, borderRadius: 18, height: 36, justifyContent: 'center', width: 36 },
-  closeText: { color: colors.text, fontSize: 30, fontWeight: '400', lineHeight: 23, marginTop: -3 },
+  reportNav: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 14, paddingHorizontal: 18, paddingTop: 50 },
+  closeButton: { alignItems: 'center', backgroundColor: colors.button, borderRadius: 18, height: 36, justifyContent: 'center', width: 36, borderWidth: 1, borderColor: colors.border },
+  closeText: { color: colors.text, fontSize: 36, fontWeight: '400', lineHeight: 23, marginTop: -3, position: 'relative', top: -4 },
   closeButtonPlaceholder: { width: 36 },
   reportNavTitle: { color: colors.text, fontSize: 12, fontWeight: '900', letterSpacing: 0.8 },
   reportContent: { padding: 18, paddingBottom: 42 },
   reportProductTop: { alignItems: 'center', flexDirection: 'row', gap: 14 },
-  reportProductImageFrame: { alignItems: 'center', backgroundColor: '#FFFFFF', borderColor: '#E8E3D9', borderRadius: 16, borderWidth: 1, height: 93, justifyContent: 'center', overflow: 'hidden', width: 83 },
+  reportProductImageFrame: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 16, height: 93, justifyContent: 'center', overflow: 'hidden', width: 83 },
   reportProductImage: { height: 86, width: 76 },
   reportProductInfo: { flex: 1 },
   reportProductName: { color: colors.text, fontSize: 19, fontWeight: '900', lineHeight: 23 },
   reportBrand: { color: colors.textSecondary, fontSize: 13, marginTop: 3 },
   reportDate: { color: colors.textMuted, fontSize: 11, marginTop: 8 },
-  rootScoreCard: { alignItems: 'center', backgroundColor: '#23211E', borderRadius: 18, flexDirection: 'row', marginTop: 18, minHeight: 104, overflow: 'hidden', padding: 12 },
+  rootScoreCard: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 18, flexDirection: 'row', marginTop: 18, minHeight: 104, overflow: 'hidden', padding: 12, borderWidth: 1, borderColor: colors.border },
   reportRoot: { height: 88, marginLeft: -11, width: 88 },
   rootScoreCopy: { flex: 1 },
-  rootScoreLabel: { color: '#D5D0C8', fontSize: 9, fontWeight: '900', letterSpacing: 0.8 },
-  rootScoreTitle: { fontSize: 14, fontWeight: '900', lineHeight: 18, marginTop: 4 },
-  reportScore: { alignItems: 'center', backgroundColor: '#23211E', borderRadius: 30, borderWidth: 3, height: 58, justifyContent: 'center', width: 58 },
+  rootScoreLabel: { color: '#D5D0C8', fontSize: 14, fontWeight: '700' },
+  rootScoreTitle: { fontSize: 14, fontWeight: '900', lineHeight: 18, marginTop: 2 },
+  reportScore: { alignItems: 'center', borderRadius: 30, borderWidth: 3, height: 58, justifyContent: 'center', width: 58 },
   reportScoreNumber: { fontSize: 21, fontWeight: '900', lineHeight: 23 },
-  reportScoreCaption: { color: '#D5D0C8', fontSize: 7, fontWeight: '900' },
+  reportScoreCaption: { fontSize: 7, fontWeight: '900' },
   realDataTitle: { color: colors.text, fontSize: 12, fontWeight: '900', letterSpacing: 0.9, marginTop: 26 },
-  reportPanel: { backgroundColor: '#F9F8F5', borderColor: '#E6E1D7', borderRadius: 18, borderWidth: 1, marginTop: 10, overflow: 'hidden', padding: 16 },
+  reportPanel: { backgroundColor: colors.surface, borderRadius: 18, marginTop: 10, overflow: 'hidden', padding: 16, borderWidth: 1, borderColor: colors.border },
   reportPanelTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   reportPanelTitle: { color: colors.text, fontSize: 13, fontWeight: '900', letterSpacing: 0.4 },
   reportPanelSubtitle: { color: colors.textSecondary, fontSize: 11, marginTop: 2 },
-  gradeBadge: { alignItems: 'center', borderRadius: 10, minWidth: 44, paddingHorizontal: 7, paddingVertical: 5 },
-  gradeSmall: { color: '#FFFFFF', fontSize: 7, fontWeight: '900', letterSpacing: 0.5 },
-  gradeBig: { color: '#FFFFFF', fontSize: 20, fontWeight: '900', lineHeight: 21 },
-  energyCard: { backgroundColor: '#23211E', borderRadius: 13, marginTop: 15, padding: 14 },
-  energyLabel: { color: colors.primary, fontSize: 9, fontWeight: '900', letterSpacing: 1 },
-  energyValue: { color: '#FFFFFF', fontSize: 27, fontWeight: '900', marginTop: 3 },
-  energyCaption: { color: '#CCC8BE', fontSize: 10, marginTop: 1 },
+  gradeBadge: { alignItems: 'center', borderRadius: 10, minWidth: 44, paddingHorizontal: 12, paddingVertical: 5 },
+  gradeSmall: { color: colors.text, fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  gradeBig: { color: colors.text, fontSize: 16, fontWeight: '700', lineHeight: 21 },
+  energyCard: { backgroundColor: colors.surfaceSecondary, borderRadius: 13, marginTop: 15, padding: 14 },
+  energyLabel: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 1 },
+  energyValue: { color: colors.text, fontSize: 27, fontWeight: '900' },
+  energyCaption: { color: colors.textSecondary, fontSize: 10, marginTop: 1 },
   nutritionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 9 },
-  nutritionCell: { backgroundColor: '#FFFFFF', borderRadius: 10, minHeight: 62, padding: 10, width: '31.5%' },
+  nutritionCell: { backgroundColor: colors.surfaceSecondary, borderRadius: 10, minHeight: 62, padding: 10, width: '31.5%' },
   nutritionNumber: { color: colors.text, fontSize: 12, fontWeight: '900' },
   nutritionLabel: { color: colors.textSecondary, fontSize: 9, lineHeight: 12, marginTop: 4 },
-  additivesRow: { alignItems: 'center', backgroundColor: '#EEEAE1', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingHorizontal: 11, paddingVertical: 10 },
+  additivesRow: { alignItems: 'center', backgroundColor: colors.surfaceSecondary, borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingHorizontal: 11, paddingVertical: 10 },
   additivesLabel: { color: colors.textSecondary, fontSize: 12, fontWeight: '700' },
   additivesValue: { color: colors.text, fontSize: 16, fontWeight: '900' },
-  sourceNote: { backgroundColor: '#FFF3C4', borderRadius: 10, marginTop: 15, padding: 11 },
-  sourceNoteTitle: { color: '#705D00', fontSize: 9, fontWeight: '900', letterSpacing: 0.4 },
-  sourceNoteText: { color: '#6B5E28', fontSize: 10, lineHeight: 14, marginTop: 4 },
   missingData: { backgroundColor: '#FFF3C4', borderRadius: 16, marginTop: 10, padding: 17 },
   missingDataTitle: { color: '#705D00', fontSize: 14, fontWeight: '900' },
   missingDataText: { color: '#6B5E28', fontSize: 12, lineHeight: 18, marginTop: 5 },
