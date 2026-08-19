@@ -25,8 +25,8 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
     const url = new URL(request.url);
-    if (request.method !== 'POST' || url.pathname !== '/ai') {
-      return json({ error: 'Utilise POST /ai.' }, 405);
+    if (request.method !== 'POST' || !['/ai', '/api/ia'].includes(url.pathname)) {
+      return json({ error: 'Utilise POST /ai ou /api/ia.' }, 405);
     }
 
     try {

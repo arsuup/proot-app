@@ -28,4 +28,4 @@ Supprime ensuite les anciennes lignes `EXPO_PUBLIC_GEMINI_*`, puis relance Expo 
 Invoke-RestMethod -Uri "https://proot-root-ai.<sous-domaine>.workers.dev/ai" -Method POST -ContentType "application/json" -Body '{"prompt":"Réponds uniquement : TEST OK"}'
 ```
 
-Le résultat attendu contient une propriété `text`.
+Le résultat attendu contient une propriété `text`. Le Worker accepte aussi `/api/ia` si votre domaine Cloudflare est routé ainsi.
