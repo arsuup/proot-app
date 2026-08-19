@@ -34,8 +34,20 @@ export default function ProotHome() {
         </View>
 
         <TouchableOpacity style={styles.missionCard} onPress={() => router.push('/missions')} activeOpacity={0.84}>
-          <Text style={styles.missionText}>MISSIONS DU JOUR</Text>
-          <Text style={styles.missionArrow}>›</Text>
+          <View style={styles.missionGlow} />
+          <View style={styles.missionTop}>
+            <View style={styles.missionIcon}><Text style={styles.missionIconMark}>◆</Text></View>
+            <View style={styles.missionCopy}>
+              <Text style={styles.missionEyebrow}>LES 3 DÉFIS DE ROOT</Text>
+              <Text style={styles.missionText}>Mission du jour</Text>
+              <Text style={styles.missionSubtitle}>Gagne des gemmes avant minuit.</Text>
+            </View>
+            <View style={styles.missionArrow}><Text style={styles.missionArrowText}>›</Text></View>
+          </View>
+          <View style={styles.missionFooter}>
+            <Text style={styles.missionFooterLabel}>RÉCOMPENSES À GAGNER</Text>
+            <View style={styles.missionReward}><Text style={styles.missionRewardGem}>◆</Text><Text style={styles.missionRewardText}>10+ gemmes</Text></View>
+          </View>
         </TouchableOpacity>
 
         <View style={styles.section}>
@@ -75,14 +87,27 @@ const styles = StyleSheet.create({
   heroGlow: {position: 'absolute', top: -72, right: -100, width: 230, height: 230, borderRadius: 180, backgroundColor: colors.primaryDark, shadowColor: colors.primaryDark, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 60, elevation: 0 },
   titleBlock: { maxWidth: '62%', zIndex: 1 },
   eyebrow: { color: colors.primaryDark, fontSize: 12, fontWeight: '900', letterSpacing: 1.1, marginTop: 16 },
-  title: { color: colors.text, fontSize: 49,fontWeight: '900', letterSpacing: -1.4,marginTop: 4 },
+  title: { color: colors.text, fontSize: 36,fontWeight: '900', letterSpacing: -1.4,marginTop: 4 },
   tagline: { color: colors.textSecondary, fontSize: 14, fontWeight: '600', lineHeight: 20, marginTop: 8 },
   heroRoot: { bottom: -8, height: 225, position: 'absolute', right: -17, width: 184 },
   heroSticker: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 40, bottom: 19,height: 58, justifyContent: 'center', position: 'absolute', right: 21, transform: [{ rotate: '-4deg' }], width: 58 },
   heroStickerText: { color: colors.text, fontSize: 10, fontWeight: '900', lineHeight: 11, textAlign: 'center' },
-  missionCard: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderRadius: 20, flexDirection: 'row', gap: 20, marginTop: 15, padding: 5, borderWidth: 1, borderColor: colors.border },
-  missionText: { color: colors.text, fontSize: 24, fontWeight: '800', lineHeight: 10, textAlign: 'center'},
-  missionArrow: { color: colors.text, fontSize: 36, fontWeight: '600', position: 'relative', top: -5 },
+  missionCard: { backgroundColor: '#25231F', borderColor: '#3A3630', borderRadius: 22, borderWidth: 1, marginTop: 15, overflow: 'hidden', padding: 15, position: 'relative' },
+  missionGlow: { backgroundColor: '#F0B63E', borderRadius: 110, height: 180, opacity: 0.24, position: 'absolute', right: -62, top: -104, width: 180 },
+  missionTop: { alignItems: 'center', flexDirection: 'row', gap: 11 },
+  missionIcon: { alignItems: 'center', backgroundColor: '#F0C14B', borderRadius: 17, height: 48, justifyContent: 'center', width: 48 },
+  missionIconMark: { color: '#3B2A0E', fontSize: 19 },
+  missionCopy: { flex: 1, minWidth: 0 },
+  missionEyebrow: { color: '#F0C14B', fontSize: 9, fontWeight: '900', letterSpacing: 0.8 },
+  missionText: { color: '#FFFFFF', fontSize: 20, fontWeight: '900', letterSpacing: -0.3, marginTop: 1 },
+  missionSubtitle: { color: '#D9D4C9', fontSize: 11, fontWeight: '700', marginTop: 2 },
+  missionArrow: { alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 16, height: 32, justifyContent: 'center', width: 32 },
+  missionArrowText: { color: '#FFFFFF', fontSize: 29, fontWeight: '400', lineHeight: 27, marginTop: -2 },
+  missionFooter: { alignItems: 'center', borderTopColor: 'rgba(255,255,255,0.12)', borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, paddingTop: 10 },
+  missionFooterLabel: { color: '#AAA399', fontSize: 9, fontWeight: '900', letterSpacing: 0.7 },
+  missionReward: { alignItems: 'center', backgroundColor: 'rgba(117,223,241,0.14)', borderRadius: 8, flexDirection: 'row', gap: 4, paddingHorizontal: 7, paddingVertical: 4 },
+  missionRewardGem: { color: '#86EAF7', fontSize: 9 },
+  missionRewardText: { color: '#D9FAFF', fontSize: 10, fontWeight: '900' },
   section: { marginTop: 31 },
   sectionTitle: { color: colors.text,fontSize: 25, fontWeight: '900', letterSpacing: -0.6, marginTop: 4 },
   bodyText: { color: colors.textSecondary, fontSize: 15, lineHeight: 23, marginTop: 10 },

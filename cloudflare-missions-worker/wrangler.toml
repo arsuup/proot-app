@@ -1,0 +1,7 @@
+name = "proot-daily-missions"
+main = "src/index.ts"
+compatibility_date = "2026-08-19"
+
+routes = [
+  { pattern = "proot.arsuup.fr/api/daily*", zone_name = "arsuup.fr" }
+]

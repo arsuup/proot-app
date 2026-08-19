@@ -2,7 +2,7 @@ import { router, type Href } from 'expo-router';
 import { PanResponder } from 'react-native';
 import { useMemo } from 'react';
 
-const tabRoutes: Href[] = ['/(tabs)', '/(tabs)/root-chat', '/(tabs)/groot'];
+const tabRoutes: Href[] = ['/(tabs)', '/(tabs)/root-chat', '/(tabs)/groot', '/(tabs)/shop'];
 
 export function useTabSwipe(currentTabIndex: number) {
   return useMemo(() => PanResponder.create({
