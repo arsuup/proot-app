@@ -9,6 +9,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -39,8 +40,30 @@ type BarcodeScanEvent = {
 
 const gameLanes = [0, 1, 2] as const;
 type GameLane = typeof gameLanes[number];
+type MathChallengeDifficulty = 'easy' | 'hard';
+type MathChallenge = {
+  answer: string;
+  difficulty: MathChallengeDifficulty;
+  question: string;
+};
+
 const ROOT_GAME_GOAL = 5;
 const ROOT_GAME_DURATION_SECONDS = 10;
+
+const easyMathChallenges: MathChallenge[] = [
+  { answer: '43', difficulty: 'easy', question: '(12 × 3) + 7 = ?' },
+  { answer: '46', difficulty: 'easy', question: '(9 × 5) + 1 = ?' },
+  { answer: '28', difficulty: 'easy', question: '70 ÷ 5 + 14 = ?' },
+  { answer: '64', difficulty: 'easy', question: '8 × 8 = ?' },
+  { answer: '35', difficulty: 'easy', question: '(90 - 20) ÷ 2 = ?' },
+];
+
+const hardMathChallenges: MathChallenge[] = [
+  { answer: '2', difficulty: 'hard', question: '∫₀^π sin(x) dx = ?' },
+  { answer: '1', difficulty: 'hard', question: 'limₓ→0 sin(x) / x = ?' },
+  { answer: '14', difficulty: 'hard', question: 'Pour f(x) = x³ + 2x, f’(2) = ?' },
+  { answer: '8', difficulty: 'hard', question: '∫₁³ 2x dx = ?' },
+];
 
 const formatAmount = (value?: number) =>
   value === undefined ? '—' : `${value.toLocaleString('fr-FR')} g`;
@@ -73,6 +96,9 @@ export default function BarcodeScanner() {
   const [aiRetryVersion, setAiRetryVersion] = useState(0);
   const [isNutritionUnlocked, setIsNutritionUnlocked] = useState(false);
   const [isRootGameVisible, setIsRootGameVisible] = useState(false);
+  const [mathChallenge, setMathChallenge] = useState<MathChallenge | null>(null);
+  const [mathAnswer, setMathAnswer] = useState('');
+  const [mathError, setMathError] = useState<string | null>(null);
   const [rootCaughtCount, setRootCaughtCount] = useState(0);
   const [rootGameStatus, setRootGameStatus] = useState<'idle' | 'playing' | 'lost'>('idle');
   const [rootGameSecondsLeft, setRootGameSecondsLeft] = useState(ROOT_GAME_DURATION_SECONDS);
@@ -109,6 +135,9 @@ export default function BarcodeScanner() {
     setAiRetryVersion(0);
     setIsNutritionUnlocked(false);
     setIsRootGameVisible(false);
+    setMathChallenge(null);
+    setMathAnswer('');
+    setMathError(null);
     setRootCaughtCount(0);
     setRootGameStatus('idle');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -156,6 +185,9 @@ export default function BarcodeScanner() {
     setAiRetryVersion(0);
     setIsNutritionUnlocked(false);
     setIsRootGameVisible(false);
+    setMathChallenge(null);
+    setMathAnswer('');
+    setMathError(null);
     setRootCaughtCount(0);
     setRootGameStatus('idle');
     lastScan.current = null;
@@ -183,6 +215,46 @@ export default function BarcodeScanner() {
     moveGameCharacters();
     setIsRootGameVisible(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const startMathChallenge = (difficulty: MathChallengeDifficulty) => {
+    const challenges = difficulty === 'hard' ? hardMathChallenges : easyMathChallenges;
+    const nextChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+    setMathChallenge(nextChallenge);
+    setMathAnswer('');
+    setMathError(null);
+    setIsRootGameVisible(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const startNutritionChallenge = () => {
+    // 10 % mini-jeu. Parmi les 90 % restants, 10 % sont des calculs difficiles : 9 % au total.
+    if (Math.random() < 0.1) {
+      startRootGame();
+      return;
+    }
+
+    startMathChallenge(Math.random() < 0.1 ? 'hard' : 'easy');
+  };
+
+  const submitMathAnswer = () => {
+    if (!mathChallenge) return;
+
+    const submittedAnswer = mathAnswer.trim().replace(',', '.').replace(/\s/g, '');
+    if (submittedAnswer !== mathChallenge.answer) {
+      setMathError(mathChallenge.difficulty === 'hard'
+        ? 'Même Root trouve ça un peu violent. Recalcule.'
+        : 'Pas loin… Root a caché une retenue quelque part.');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    setMathChallenge(null);
+    setMathAnswer('');
+    setMathError(null);
+    setIsNutritionUnlocked(true);
+    setShowNutritionDetails(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   const catchRoot = () => {
@@ -405,7 +477,7 @@ export default function BarcodeScanner() {
                       style={styles.nutritionToggle}
                       onPress={() => {
                         if (isNutritionUnlocked) setShowNutritionDetails((visible) => !visible);
-                        else startRootGame();
+                        else if (!isRootGameVisible && !mathChallenge) startNutritionChallenge();
                       }}
                     >
                       <Text style={styles.nutritionToggleText}>
@@ -455,6 +527,33 @@ export default function BarcodeScanner() {
                             </View>
                           </View>
                         )}
+                      </View>
+                    ) : mathChallenge ? (
+                      <View style={[styles.mathChallengeCard, mathChallenge.difficulty === 'hard' && styles.hardMathChallengeCard]}>
+                        <Text style={styles.mathKicker}>
+                          {mathChallenge.difficulty === 'hard' ? 'ROOT A CHOISI LE MODE COSMIQUE' : 'ROOT EXIGE UN PETIT CALCUL'}
+                        </Text>
+                        <Text style={styles.mathInstruction}>Résous ceci pour récupérer les vraies valeurs :</Text>
+                        <Text style={styles.mathQuestion}>{mathChallenge.question}</Text>
+                        <View style={styles.mathAnswerRow}>
+                          <TextInput
+                            value={mathAnswer}
+                            onChangeText={(value) => {
+                              setMathAnswer(value);
+                              if (mathError) setMathError(null);
+                            }}
+                            onSubmitEditing={submitMathAnswer}
+                            placeholder="Réponse"
+                            placeholderTextColor="#8F8063"
+                            keyboardType="numbers-and-punctuation"
+                            returnKeyType="done"
+                            style={styles.mathInput}
+                          />
+                          <TouchableOpacity style={styles.mathValidateButton} onPress={submitMathAnswer} activeOpacity={0.82}>
+                            <Text style={styles.mathValidateText}>Valider</Text>
+                          </TouchableOpacity>
+                        </View>
+                        {mathError ? <Text style={styles.mathError}>{mathError}</Text> : null}
                       </View>
                     ) : showNutritionDetails ? (
                       <View style={styles.nutritionPanel}>
@@ -679,6 +778,16 @@ const styles = StyleSheet.create({
   aiIssueBox: { alignItems: 'center', marginTop: 8 },
   aiRetryButton: { borderColor: '#CFC9BE', borderRadius: 8, borderWidth: 1, marginTop: 7, paddingHorizontal: 10, paddingVertical: 6 },
   aiRetryText: { color: colors.textSecondary, fontSize: 10, fontWeight: '900' },
+  mathChallengeCard: { alignSelf: 'stretch', backgroundColor: '#E8F4FF', borderColor: '#8BB6DF', borderRadius: 16, borderWidth: 1, marginTop: 12, padding: 14 },
+  hardMathChallengeCard: { backgroundColor: '#F2E7FF', borderColor: '#B996DD' },
+  mathKicker: { color: '#356B9B', fontSize: 9, fontWeight: '900', letterSpacing: 0.8, textAlign: 'center' },
+  mathInstruction: { color: colors.textSecondary, fontSize: 11, lineHeight: 15, marginTop: 5, textAlign: 'center' },
+  mathQuestion: { color: colors.text, fontSize: 22, fontWeight: '900', marginVertical: 12, textAlign: 'center' },
+  mathAnswerRow: { flexDirection: 'row', gap: 8 },
+  mathInput: { backgroundColor: '#FFFFFF', borderColor: '#C9D9E7', borderRadius: 10, borderWidth: 1, color: colors.text, flex: 1, fontSize: 16, fontWeight: '800', minHeight: 44, paddingHorizontal: 12 },
+  mathValidateButton: { alignItems: 'center', backgroundColor: '#356B9B', borderRadius: 10, justifyContent: 'center', minWidth: 82, paddingHorizontal: 10 },
+  mathValidateText: { color: '#FFFFFF', fontSize: 12, fontWeight: '900' },
+  mathError: { color: '#A23D3D', fontSize: 11, fontWeight: '700', marginTop: 8, textAlign: 'center' },
   rootGameCard: {
     alignSelf: 'stretch',
     backgroundColor: '#FFF0B4',

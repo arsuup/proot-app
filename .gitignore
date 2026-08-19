@@ -35,6 +35,8 @@ yarn-error.*
 .env*.local
 cloudflare-worker/.dev.vars
 cloudflare-worker/.wrangler/
+cloudflare-missions-worker/.dev.vars
+cloudflare-missions-worker/.wrangler/
 
 # typescript
 *.tsbuildinfo

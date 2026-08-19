@@ -1,15 +1,28 @@
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants/theme';
+import { fallbackDailyTasks, fetchDailyTasks, type DailyTask } from '../../lib/daily-missions';
+import { useTabSwipe } from '../../lib/use-tab-swipe';
 
 const rootNormal = require('../../../assets/images/root-cool.png');
 
 export default function ProotHome() {
   const insets = useSafeAreaInsets();
+  const tabSwipe = useTabSwipe(0);
+  const [dailyMission, setDailyMission] = useState<DailyTask>(fallbackDailyTasks[0]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void fetchDailyTasks(controller.signal).then((tasks) => setDailyMission(tasks[0]));
+
+    return () => controller.abort();
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...tabSwipe.panHandlers}>
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}
         showsVerticalScrollIndicator={false}
@@ -26,13 +39,14 @@ export default function ProotHome() {
           <View style={styles.heroSticker}><Text style={styles.heroStickerText}>0%{`\n`}SÉRIEUX</Text></View>
         </View>
 
-        <View style={styles.missionCard}>
+        <TouchableOpacity style={styles.missionCard} onPress={() => router.push('/missions')} activeOpacity={0.84}>
           <View style={styles.missionBadge}><Text style={styles.missionBadgeText}>MISSION{`\n`}DU JOUR</Text></View>
           <View style={styles.missionCopy}>
-            <Text style={styles.missionTitle}>Trouve le snack le plus chaotique.</Text>
-            <Text style={styles.missionText}>Scanne, observe le RootScore et laisse Root célébrer les pires décisions.</Text>
+            <Text style={styles.missionTitle}>{dailyMission.title}</Text>
+            <Text style={styles.missionText}>{dailyMission.content}</Text>
           </View>
-        </View>
+          <Text style={styles.missionArrow}>›</Text>
+        </TouchableOpacity>
 
         <View style={styles.section}>
           <Text style={styles.sectionKicker}>LE CONCEPT</Text>
@@ -225,6 +239,7 @@ const styles = StyleSheet.create({
   missionCopy: { 
     flex: 1 
   },
+  missionArrow: { color: '#6B5E28', fontSize: 29, fontWeight: '400', marginLeft: -2 },
   missionTitle: { 
     color: colors.text, 
     fontSize: 14, 

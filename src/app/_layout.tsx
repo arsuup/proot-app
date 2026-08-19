@@ -7,6 +7,7 @@ export default function Layout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="missions" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="login" options={{ animation: 'slide_from_bottom' }} />
           <Stack.Screen
           name="scanner"

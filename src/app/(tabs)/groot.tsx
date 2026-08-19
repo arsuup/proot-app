@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../constants/theme';
 import { type ScanHistoryItem, useAppData } from '../../lib/app-data';
+import { useTabSwipe } from '../../lib/use-tab-swipe';
 
 const rootNormal = require('../../../assets/images/root-cool.png');
 
@@ -80,6 +81,7 @@ function HistoryReport({ scan, onClose }: { scan: ScanHistoryItem; onClose: () =
 
 export default function GrootScreen() {
   const { clearHistory, history, signOut, user } = useAppData();
+  const tabSwipe = useTabSwipe(2);
   const [selectedScan, setSelectedScan] = useState<ScanHistoryItem | null>(null);
 
   const confirmClearHistory = () => {
@@ -90,7 +92,7 @@ export default function GrootScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...tabSwipe.panHandlers}>
       <View style={styles.header}>
         <View style={styles.headerCopy}><Text style={styles.title}>GROOT</Text><Text style={styles.subtitle}>Tes scans passés</Text></View>
       </View>

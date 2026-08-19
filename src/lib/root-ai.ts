@@ -14,6 +14,10 @@ type RootAiInput = {
 };
 
 type RootChatInput = {
+  history?: Array<{
+    from: 'root' | 'user';
+    text: string;
+  }>;
   userMessage: string;
 };
 
@@ -86,7 +90,7 @@ async function performRootRequest(prompt: string): Promise<RootAiResult> {
       return {
         message: null,
         failed: true,
-        errorMessage: 'L’IA de Root ne répond pas pour le moment : conseil de secours affiché.',
+        errorMessage: 'L\'IA de Root ne répond pas pour le moment : conseil de secours affiché.',
       };
     }
 
@@ -101,7 +105,7 @@ async function performRootRequest(prompt: string): Promise<RootAiResult> {
     return {
       message: cleanMessage || null,
       failed: !cleanMessage,
-      errorMessage: cleanMessage ? undefined : 'L’IA de Root n’a pas renvoyé de texte : conseil de secours affiché.',
+      errorMessage: cleanMessage ? undefined : 'L\'IA de Root n\'a pas renvoyé de texte : conseil de secours affiché.',
     };
   } catch {
     return {
@@ -141,8 +145,15 @@ const chatFallbacks = [
   'Mon plan ultra-sérieux : regarde une carotte très fort pendant dix secondes. Ne fais surtout pas de moi ton coach réel.',
 ];
 
-export async function generateRootChatMessage({ userMessage }: RootChatInput): Promise<RootAiResult> {
+export async function generateRootChatMessage({ history = [], userMessage }: RootChatInput): Promise<RootAiResult> {
+  const conversationHistory = history
+    .slice(-10)
+    .map((message) => `${message.from === 'user' ? 'Personne' : 'Root'} : ${message.text.slice(0, 350)}`)
+    .join('\n');
   const prompt = `Tu incarnes Root, un coach alimentaire fictif catastrophique dans une application parodique. Réponds seulement en français, en une ou deux phrases courtes (220 caractères maximum), sans markdown, astérisque, emoji ni titre.
+
+Extraits de la conversation en cours :
+${conversationHistory || 'Aucun message précédent.'}
 
 Question de la personne : ${userMessage}
 
