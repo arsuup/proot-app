@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { type ColorValue, StyleSheet, Text } from 'react-native';
-import { colors } from '../../../constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '../../constants/theme';
 
 type TabIconProps = {
   symbol: string;
@@ -12,13 +13,21 @@ function TabIcon({ symbol, color }: TabIconProps) {
 }
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primaryDark,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: 75 + insets.bottom,
+            paddingBottom: insets.bottom,
+          },
+        ],
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -32,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="root-chat"
         options={{
-          title: '√',
+          title: 'Root',
           tabBarIcon: ({ color }) => <TabIcon symbol="√" color={color} />,
         }}
       />
@@ -51,7 +60,6 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: colors.surface,
     borderTopColor: '#E8E4DC',
-    height: 68,
     paddingTop: 7,
   },
   tabLabel: {

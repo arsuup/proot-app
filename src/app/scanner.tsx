@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { colors } from '../../constants/theme';
+import { colors } from '../constants/theme';
 import { useAppData } from '../lib/app-data';
 import { generateRootAiMessage, isRootAiConfigured } from '../lib/root-ai';
 import { getRootVerdict, type RootNutriments } from '../lib/root-score';

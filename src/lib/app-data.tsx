@@ -40,6 +40,9 @@ type AppDataContextValue = {
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
+const generateId = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
 const normalizeHistory = (items: ScanHistoryItem[]) =>
   [...items]
     .sort((first, second) => Date.parse(first.scannedAt) - Date.parse(second.scannedAt))
@@ -50,6 +53,14 @@ const normalizeHistory = (items: ScanHistoryItem[]) =>
       return uniqueItems;
     }, [])
     .slice(-MAX_HISTORY_ITEMS);
+
+const persist = async (key: string, value: unknown) => {
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Échec de sauvegarde pour ${key}`, error);
+  }
+};
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
@@ -70,14 +81,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         const parsedHistory = storedHistory ? (JSON.parse(storedHistory) as ScanHistoryItem[]) : [];
         const cleanedHistory = normalizeHistory(parsedHistory);
         setHistory(cleanedHistory);
-        if (storedHistory) void AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(cleanedHistory));
+        if (storedHistory) void persist(HISTORY_STORAGE_KEY, cleanedHistory);
       } catch {
         setUser(null);
         setHistory([]);
       } finally {
         setIsReady(true);
       }
-    }).catch(() => {
+    }).catch((error) => {
+      console.warn('Échec du chargement des données locales', error);
       if (isMounted) setIsReady(true);
     });
 
@@ -88,33 +100,38 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (nextUser: AppUser) => {
     setUser(nextUser);
-    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+    await persist(USER_STORAGE_KEY, nextUser);
   }, []);
 
   const signOut = useCallback(async () => {
     setUser(null);
-    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    try {
+      await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    } catch (error) {
+      console.warn('Échec de la suppression de l\'utilisateur', error);
+    }
   }, []);
 
   const addScan = useCallback((scan: NewScanHistoryItem) => {
     const item: ScanHistoryItem = {
       ...scan,
-      id: `${scan.barcode}-${Date.now()}`,
+      id: generateId(),
       scannedAt: new Date().toISOString(),
     };
     setHistory((current) => {
-      // Un même code-barres n'apparaît qu'une fois. Le nouveau scan est replacé à la fin,
-      // comme dans l'exemple : brocolis → coca → brocolis devient coca → brocolis.
-      const withoutSameProduct = current.filter((existing) => existing.barcode !== scan.barcode);
-      const nextHistory = [...withoutSameProduct, item].slice(-MAX_HISTORY_ITEMS);
-      void AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+      const nextHistory = normalizeHistory([...current, item]);
+      void persist(HISTORY_STORAGE_KEY, nextHistory);
       return nextHistory;
     });
   }, []);
 
   const clearHistory = useCallback(async () => {
     setHistory([]);
-    await AsyncStorage.removeItem(HISTORY_STORAGE_KEY);
+    try {
+      await AsyncStorage.removeItem(HISTORY_STORAGE_KEY);
+    } catch (error) {
+      console.warn('Échec de la suppression de l\'historique', error);
+    }
   }, []);
 
   const value = useMemo<AppDataContextValue>(() => ({

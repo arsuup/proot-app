@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { colors } from '../../../constants/theme';
+import { colors } from '../../constants/theme';
 import { generateRootChatMessage } from '../../lib/root-ai';
 
 type ChatMessage = {
@@ -25,7 +25,7 @@ const rootThinking = require('../../../assets/images/root-angry.png');
 const firstMessage: ChatMessage = {
   id: 'welcome',
   from: 'root',
-  text: 'Salut. Je suis Root, ton coach alimentaire volontairement catastrophique. Pose-moi une question, mais ne m’écoute surtout pas.',
+  text: 'Salut. Je suis Root, ton coach alimentaire de merde. Pose-moi une question, j\'y réponderais mal.',
 };
 
 export default function RootChat() {
@@ -48,7 +48,7 @@ export default function RootChat() {
     setIsThinking(true);
 
     const result = await generateRootChatMessage({ userMessage: text });
-    const fallback = 'Root a perdu le fil. Essaie de demander si une banane a besoin d’un permis de conduire.';
+    const fallback = 'Root a perdu le fil. Essaie de demander si une banane a besoin d\'un permis de conduire.';
     setMessages((current) => [
       ...current,
       { id: `root-${Date.now()}`, from: 'root', text: result.message ?? fallback },
@@ -62,7 +62,7 @@ export default function RootChat() {
         <Image source={rootNormal} style={styles.headerRoot} resizeMode="contain" />
         <View>
           <Text style={styles.headerTitle}>√ ROOT</Text>
-          <Text style={styles.headerSubtitle}>Coach inutile · en ligne</Text>
+          <Text style={styles.headerSubtitle}>Coach inutile</Text>
         </View>
       </View>
 
@@ -86,7 +86,7 @@ export default function RootChat() {
         ) : null}
       </ScrollView>
 
-      <View style={styles.disclaimer}><Text style={styles.disclaimerText}>Parodie : Root n’est pas un professionnel de santé.</Text></View>
+      <View style={styles.disclaimer}><Text style={styles.disclaimerText}>Parodie : Root n'est pas un professionnel de santé.</Text></View>
       <View style={styles.composer}>
         <Image source={rootNormal} style={styles.composerRoot} resizeMode="contain" />
         <TextInput
@@ -109,29 +109,145 @@ export default function RootChat() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: colors.background, flex: 1 },
-  header: { alignItems: 'center', backgroundColor: colors.surface, borderBottomColor: '#ECE7DD', borderBottomWidth: 1, flexDirection: 'row', gap: 10, paddingBottom: 14, paddingHorizontal: 18, paddingTop: 18 },
-  headerRoot: { height: 48, width: 48 },
-  headerTitle: { color: colors.text, fontSize: 20, fontWeight: '900' },
-  headerSubtitle: { color: colors.success, fontSize: 12, fontWeight: '700', marginTop: 1 },
-  messages: { gap: 15, padding: 18, paddingBottom: 28 },
-  messageRow: { alignItems: 'flex-end', flexDirection: 'row', flexShrink: 1, gap: 7, maxWidth: '87%' },
-  userMessageRow: { alignSelf: 'flex-end', justifyContent: 'flex-end' },
-  messageRoot: { height: 31, width: 31 },
-  bubble: { borderRadius: 20, flexShrink: 1, paddingHorizontal: 14, paddingVertical: 11 },
-  rootBubble: { backgroundColor: colors.surface, borderBottomLeftRadius: 5 },
-  userBubble: { backgroundColor: '#292722', borderBottomRightRadius: 5 },
-  messageText: { color: colors.text, flexShrink: 1, fontSize: 15, lineHeight: 21 },
-  userMessageText: { color: '#FFFFFF' },
-  thinkingBubble: { backgroundColor: '#FFF8C9', borderRadius: 20, borderBottomLeftRadius: 5, paddingHorizontal: 14, paddingVertical: 10 },
-  thinkingText: { color: '#695A00', fontSize: 13, fontWeight: '700' },
-  dots: { alignSelf: 'flex-end', marginTop: 3, opacity: 0.5 },
-  disclaimer: { alignItems: 'center', paddingBottom: 6, paddingHorizontal: 18 },
-  disclaimerText: { color: colors.textMuted, fontSize: 11, textAlign: 'center' },
-  composer: { alignItems: 'center', backgroundColor: colors.surface, borderTopColor: '#ECE7DD', borderTopWidth: 1, flexDirection: 'row', gap: 8, paddingHorizontal: 13, paddingVertical: 10 },
-  composerRoot: { height: 38, width: 38 },
-  input: { backgroundColor: '#F2F0EB', borderRadius: 22, color: colors.text, flex: 1, fontSize: 14, maxHeight: 90, paddingHorizontal: 15, paddingVertical: 10 },
-  sendButton: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 20, height: 40, justifyContent: 'center', width: 40 },
-  sendButtonDisabled: { backgroundColor: '#E6E1D7' },
-  sendText: { color: colors.text, fontSize: 23, fontWeight: '900', marginTop: -3 },
+  container: { 
+    backgroundColor: colors.background, 
+    flex: 1 
+  },
+  header: { 
+    alignItems: 'center', 
+    backgroundColor: colors.surface, 
+    borderBottomColor: '#ECE7DD', 
+    borderBottomWidth: 1, 
+    flexDirection: 'row', 
+    gap: 10, 
+    paddingBottom: 14, 
+    paddingHorizontal: 18, 
+    paddingTop: 18 
+  },
+  headerRoot: { 
+    height: 48, 
+    width: 48 
+  },
+  headerTitle: { 
+    color: colors.text, 
+    fontSize: 20, 
+    fontWeight: '900' 
+  },
+  headerSubtitle: { 
+    color: colors.textSecondary, 
+    fontSize: 12, 
+    fontWeight: '700', 
+    marginTop: 1 
+  },
+  messages: { 
+    gap: 15, 
+    padding: 18, 
+    paddingBottom: 28 
+  },
+  messageRow: { 
+    alignItems: 'flex-end', 
+    flexDirection: 'row', 
+    flexShrink: 1,
+    gap: 7, 
+    maxWidth: '87%' 
+  },
+  userMessageRow: { 
+    alignSelf: 'flex-end', 
+    justifyContent: 'flex-end' 
+  },
+  messageRoot: { 
+    height: 31, 
+    width: 31 
+  },
+  bubble: { 
+    borderRadius: 20, 
+    flexShrink: 1,
+    paddingHorizontal: 14, 
+    paddingVertical: 11 
+  },
+  rootBubble: { 
+    backgroundColor: colors.surface, 
+    borderBottomLeftRadius: 0 
+  },
+  userBubble: { 
+    backgroundColor: '#292722', 
+    borderBottomRightRadius: 0 
+  },
+  messageText: { 
+    color: colors.text, 
+    flexShrink: 1, 
+    fontSize: 15, 
+    lineHeight: 21 
+  },
+  userMessageText: { 
+    color: '#FFFFFF' 
+  },
+  thinkingBubble: { 
+    backgroundColor: '#FFF8C9', 
+    borderRadius: 20, 
+    borderBottomLeftRadius: 0, 
+    paddingHorizontal: 14, 
+    paddingVertical: 10 
+  },
+  thinkingText: { 
+    color: '#695A00', 
+    fontSize: 13, 
+    fontWeight: '700' 
+  },
+  dots: { 
+    alignSelf: 'flex-end', 
+    marginTop: 3, 
+    opacity: 0.5 
+  },
+  disclaimer: { 
+    alignItems: 'center', 
+    paddingBottom: 6, 
+    paddingHorizontal: 18 
+  },
+  disclaimerText: { 
+    color: colors.textMuted, 
+    fontSize: 11, 
+    textAlign: 'center' 
+  },
+  composer: { 
+    alignItems: 'center', 
+    backgroundColor: colors.surface, 
+    borderTopColor: '#ECE7DD', 
+    borderTopWidth: 1, 
+    flexDirection: 'row', 
+    gap: 8, 
+    paddingHorizontal: 13, 
+    paddingVertical: 10 
+  },
+  composerRoot: { 
+    height: 38, 
+    width: 38 
+  },
+  input: { 
+    backgroundColor: '#F2F0EB', 
+    borderRadius: 22, 
+    color: colors.text, 
+    flex: 1, 
+    fontSize: 14, 
+    maxHeight: 90, 
+    paddingHorizontal: 15, 
+    paddingVertical: 10 
+  },
+  sendButton: { 
+    alignItems: 'center', 
+    backgroundColor: colors.primary, 
+    borderRadius: 20, 
+    height: 40, 
+    justifyContent: 'center', 
+    width: 40 
+  },
+  sendButtonDisabled: { 
+    backgroundColor: '#E6E1D7' 
+  },
+  sendText: { 
+    color: colors.text, 
+    fontSize: 23, 
+    fontWeight: '900',
+    marginTop: -3 
+  },
 });

@@ -2,6 +2,8 @@ import type { RootNutriments } from './root-score';
 
 type RootWorkerResponse = {
   text?: unknown;
+  message?: unknown;
+  response?: unknown;
   error?: unknown;
 };
 
@@ -15,8 +17,8 @@ type RootChatInput = {
   userMessage: string;
 };
 
-// L'URL est publique, mais le modèle et les éventuels secrets restent dans le Worker Cloudflare.
-const rootAiUrl = process.env.EXPO_PUBLIC_ROOT_AI_URL?.trim();
+const DEFAULT_ROOT_AI_URL = 'https://proot.arsuup.fr/api/ia';
+const rootAiUrl = (process.env.EXPO_PUBLIC_ROOT_AI_URL?.trim() || DEFAULT_ROOT_AI_URL);
 
 export const isRootAiConfigured = Boolean(rootAiUrl);
 
@@ -73,7 +75,7 @@ async function performRootRequest(prompt: string): Promise<RootAiResult> {
 
     const result = (await response.json().catch(() => null)) as RootWorkerResponse | null;
     if (!response.ok) {
-      console.warn('Le Worker Root n’a pas généré de message.', response.status);
+      console.warn('L’API Root n’a pas généré de message.', response.status);
       if (response.status === 429) {
         return {
           message: null,
@@ -88,9 +90,13 @@ async function performRootRequest(prompt: string): Promise<RootAiResult> {
       };
     }
 
-    const message = typeof result?.text === 'string' ? result.text.trim() : '';
+    const rawMessage =
+      (typeof result?.text === 'string' && result.text) ||
+      (typeof result?.message === 'string' && result.message) ||
+      (typeof result?.response === 'string' && result.response) ||
+      '';
 
-    const cleanMessage = message ? cleanRootMessage(message) : '';
+    const cleanMessage = rawMessage ? cleanRootMessage(rawMessage) : '';
     if (cleanMessage) successfulMessages.set(prompt, cleanMessage);
     return {
       message: cleanMessage || null,
@@ -129,7 +135,7 @@ Reste clairement dans la parodie : pas de conseil médical, pas de recommandatio
 }
 
 const chatFallbacks = [
-  'Un régime ? Oui : range tes légumes par ordre alphabétique et appelle ça une victoire. C’est une parodie, évidemment.',
+  'Un régime ? Oui : range tes légumes par ordre alphabétique et appelle ça une victoire. C\'est une parodie, évidemment.',
   'Je conseille de négocier avec ton frigo à la pleine lune. Pour un vrai conseil, Root est la dernière personne à écouter.',
   'Facile : mets un chapeau à ta salade. Ça ne change rien, mais ça lui donne une mission.',
   'Mon plan ultra-sérieux : regarde une carotte très fort pendant dix secondes. Ne fais surtout pas de moi ton coach réel.',
@@ -140,7 +146,7 @@ export async function generateRootChatMessage({ userMessage }: RootChatInput): P
 
 Question de la personne : ${userMessage}
 
-Réponds avec une idée absurde, manifestement inutile et inoffensive. Tu peux être drôle et nul, mais ne donne jamais de vrai conseil de régime, de santé, de perte de poids, de calories, de jeûne, de médicament ou de comportement alimentaire dangereux. Si la question est médicale ou sérieuse, dis que Root est fictif et qu’il faut un vrai professionnel. Reste explicitement dans la parodie.`;
+Réponds avec une idée absurde, manifestement inutile et inoffensive. Tu peux être drôle et nul, mais ne donne jamais de vrai conseil de régime, de santé, de perte de poids, de calories, de jeûne, de médicament ou de comportement alimentaire dangereux. Si la question est médicale ou sérieuse, dis que Root est fictif et qu'il faut un vrai professionnel. Reste explicitement dans la parodie.`;
 
   const result = await requestRootMessage(prompt);
   if (result.message || result.failed || isRootAiConfigured) return result;

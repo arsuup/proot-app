@@ -7,10 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "prootapp",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      // "icon": "./assets/proot.icon"
-      // faudra remettre quand une nouvelle version de XCode corrigera le problème
-    },
+    "ios": {},
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F7EFE5",
@@ -33,7 +30,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -44,7 +44,6 @@ export function getRootVerdict(
   const salt = nutriments.salt_100g ?? 0;
   const additives = nutriments.additives_n ?? 0;
 
-  // C'est volontairement l'inverse d'un score nutritionnel sérieux.
   const score = clamp(
     Math.round(sugar * 4 + fat * 1.4 + saturatedFat * 3 + salt * 12 + additives * 5),
     0,

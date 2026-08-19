@@ -1,7 +1,6 @@
-import { router } from 'expo-router';
-import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
-import { colors } from '../../../constants/theme';
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../constants/theme';
 import { type ScanHistoryItem, useAppData } from '../../lib/app-data';
 
 const rootNormal = require('../../../assets/images/root-cool.png');
@@ -68,7 +67,7 @@ function HistoryReport({ scan, onClose }: { scan: ScanHistoryItem; onClose: () =
                 <View style={styles.nutritionCell}><Text style={styles.nutritionNumber}>{formatAmount(nutrients.fiber_100g)}</Text><Text style={styles.nutritionLabel}>Fibres</Text></View>
               </View>
               <View style={styles.additivesRow}><Text style={styles.additivesLabel}>Additifs déclarés</Text><Text style={styles.additivesValue}>{nutrients.additives_n ?? '—'}</Text></View>
-              <View style={styles.sourceNote}><Text style={styles.sourceNoteTitle}>SOURCE</Text><Text style={styles.sourceNoteText}>Données issues d’Open Food Facts et conservées lors du scan. Root ne change pas ces chiffres.</Text></View>
+              <View style={styles.sourceNote}><Text style={styles.sourceNoteTitle}>SOURCE</Text><Text style={styles.sourceNoteText}>Données issues d'Open Food Facts et conservées lors du scan. Root ne change pas ces chiffres.</Text></View>
             </View>
           ) : (
             <View style={styles.missingData}><Text style={styles.missingDataTitle}>Rapport non disponible pour ce vieux scan.</Text><Text style={styles.missingDataText}>Les nouveaux scans sauvegardent toutes les valeurs réelles. Rescannne ce produit une fois pour mettre sa fiche à jour.</Text></View>
@@ -90,13 +89,10 @@ export default function GrootScreen() {
     ]);
   };
 
-  const logout = () => void signOut().then(() => router.replace('/'));
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerCopy}><Text style={styles.title}>GROOT</Text><Text style={styles.subtitle}>Tes scans passés</Text></View>
-        <TouchableOpacity style={styles.logoutButton} onPress={user ? logout : () => router.push('/login')}><Text style={styles.logoutText}>{user ? 'Déconnexion' : 'Connexion'}</Text></TouchableOpacity>
       </View>
 
       {user ? <View style={styles.profileRow}><Image source={user.picture ? { uri: user.picture } : rootNormal} style={styles.profileImage} resizeMode="cover" /><View><Text style={styles.profileName}>{user.name}</Text><Text style={styles.profileCaption}>Historique local du téléphone</Text></View></View> : null}
