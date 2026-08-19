@@ -8,7 +8,8 @@
     "scheme": "prootapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/proot.icon"
+      // "icon": "./assets/proot.icon"
+      // faudra remettre quand une nouvelle version de XCode corrigera le problème
     },
     "android": {
       "adaptiveIcon": {
